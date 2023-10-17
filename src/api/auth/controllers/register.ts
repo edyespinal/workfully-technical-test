@@ -52,7 +52,7 @@ export async function register(req: Request, res: Response) {
 
     await user.save()
 
-    res.cookie('session', user.authentication.accessToken, {
+    res.cookie('accessToken', user.authentication.accessToken, {
       domain: process.env.COOKIES_DOMAIN,
       path: '/',
       httpOnly: true,
@@ -60,9 +60,6 @@ export async function register(req: Request, res: Response) {
 
     return res.status(201).json({ username, email, name, lastName }).end()
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log(error)
-
     res.sendStatus(500)
   }
 }

@@ -33,7 +33,7 @@ export async function login(req: Request, res: Response) {
 
     await user.save()
 
-    res.cookie('session', user.authentication.accessToken, {
+    res.cookie('accessToken', user.authentication.accessToken, {
       domain: process.env.COOKIES_DOMAIN,
       path: '/',
       httpOnly: true,

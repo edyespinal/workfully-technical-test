@@ -3,13 +3,13 @@ import { getUserByAccessTokenService } from '../../users/model/services'
 
 export async function logout(req: Request, res: Response) {
   try {
-    const { session } = req.cookies
+    const { accessToken } = req.cookies
 
-    if (!session) {
+    if (!accessToken) {
       return res.status(400).json({ message: 'Missing session cookie' })
     }
 
-    const user = await getUserByAccessTokenService(session)
+    const user = await getUserByAccessTokenService(accessToken)
 
     if (!user || !user.authentication) {
       return res.status(404).json({ message: 'Invalid credentials' })

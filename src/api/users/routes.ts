@@ -7,14 +7,15 @@ import {
   getUser,
   updateUser,
 } from './controllers'
+import { isAuthenticated, isAuthorizedOwner } from '../../middlewares'
 
 const usersRouter = Router()
 
-usersRouter.get('/', getAllUsers)
-usersRouter.post('/', createUser)
-usersRouter.get('/:id', getUser)
-usersRouter.get('/:id/profile', getUser)
-usersRouter.patch('/:id', updateUser)
-usersRouter.delete('/:id', deleteUser)
+usersRouter.get('/', isAuthenticated, getAllUsers)
+usersRouter.post('/', isAuthenticated, createUser)
+usersRouter.get('/:id', isAuthenticated, getUser)
+usersRouter.get('/:id/profile', isAuthenticated, isAuthorizedOwner, getUser)
+usersRouter.patch('/:id', isAuthenticated, isAuthorizedOwner, updateUser)
+usersRouter.delete('/:id', isAuthenticated, isAuthorizedOwner, deleteUser)
 
 export { usersRouter }
