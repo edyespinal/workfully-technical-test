@@ -5,7 +5,6 @@ import {
   deleteUser,
   getAllUsers,
   getUser,
-  getUserProfile,
   updateUser,
 } from './controllers'
 
@@ -14,7 +13,7 @@ const usersRouter = Router()
 usersRouter.get('/', getAllUsers)
 usersRouter.post('/', createUser)
 usersRouter.get('/:id', getUser)
-usersRouter.get('/:id/profile', getUserProfile)
+usersRouter.get('/:id/profile', getUser)
 usersRouter.patch('/:id', updateUser)
 usersRouter.delete('/:id', deleteUser)
 

@@ -21,7 +21,10 @@ export function getUserByAccessTokenService(
 }
 
 export async function createUserService(
-  user: Record<string, any>
+  user: Pick<
+    User,
+    'username' | 'email' | 'name' | 'lastName' | 'authentication'
+  >
 ): Promise<User> {
   const doc = await new UserModel(user).save()
 
@@ -30,7 +33,7 @@ export async function createUserService(
 
 export function updateUserService(
   userId: string,
-  user: User
+  user: Pick<User, 'username' | 'name' | 'lastName'>
 ): Promise<User | null> {
   return UserModel.findByIdAndUpdate(userId, user, { new: true })
 }
