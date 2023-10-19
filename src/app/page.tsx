@@ -1,23 +1,19 @@
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+import { useSession } from '@/hooks/useSession'
+import { HomeUI } from './(home)/HomeUI'
 
 export default function Home() {
-  return (
-    <main className='p-24'>
-      <header className='py-8'>
-        <h1 className='text-4xl font-bold'>Workfully</h1>
-        <p>This is the frontend for the technical test</p>
-      </header>
+  const { user, logout } = useSession()
+  const router = useRouter()
 
-      <div className='flex gap-8'>
-        <Link href='/auth/login'>
-          <Button>Login</Button>
-        </Link>
+  const handleLogout = async () => {
+    await logout()
 
-        <Link href='/auth/register'>
-          <Button>Register</Button>
-        </Link>
-      </div>
-    </main>
-  )
+    router.push('/auth/login')
+  }
+
+  return <HomeUI {...{ user, handleLogout }} />
 }

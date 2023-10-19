@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
 import { Roboto } from 'next/font/google'
+
+import { cn } from '@/utils/mergeClasses'
+import { Header } from '@/components/Header/Header'
+import { Footer } from '@/components/Footer/Footer'
+
+import { RootProvider } from './RootProvider'
 import './globals.css'
-import { cn } from '@/lib/utils'
-import { User2, UserCircle } from 'lucide-react'
-import Link from 'next/link'
 
 const font = Roboto({
   weight: ['400', '700'],
@@ -22,25 +25,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <body
         className={cn(
-          'min-h-screen grid grid-rows-[auto_1fr_auto] max-w-4xl mx-auto',
+          'mx-auto grid min-h-screen max-w-sm grid-rows-[auto_1fr_auto] md:max-w-lg lg:max-w-4xl',
           font.className
         )}
       >
-        <header className='w-full py-8 flex items-center justify-between'>
-          <Link href='/' className='font-bold'>
-            Workfully
-          </Link>
-          <User2 />
-        </header>
-        {children}
-        <footer>
-          <div className='text-slate-600 text-center text-sm py-2'>
-            made by Edy Espinal
-          </div>
-        </footer>
+        <RootProvider>
+          <Header />
+          {children}
+          <Footer />
+        </RootProvider>
       </body>
     </html>
   )
