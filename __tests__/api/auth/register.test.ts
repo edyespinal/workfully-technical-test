@@ -1,13 +1,40 @@
 import supertest from 'supertest'
 import app from '../../../src/app'
 
-const request = supertest(app)
+describe('POST /auth/register', () => {
+  beforeEach((): void => {
+    jest.setTimeout(60000)
+  })
 
-describe('Test auth/register.ts', () => {
-  test('POST /api/auth/register', async () => {
-    const response = await request.post('/api/auth/register')
+  test('Receive error due to empty body', async () => {
+    const response = await supertest(app).post('/api/auth/register')
 
-    expect(response.status).toBe(200)
-    expect(response.body).toEqual({ message: 'register' })
+    expect(response.body).toEqual({
+      errors: [
+        {
+          code: 'BAD_REQUEST',
+          message: 'Unable to register user',
+          reason: 'Missing required fields',
+        },
+      ],
+    })
+  })
+
+  test('Receive error due email already in use', async () => {
+    const response = await supertest(app).post('/api/auth/register').send({
+      username: 'edy',
+      email: 'edy@workfully.com',
+      password: 'password',
+    })
+
+    expect(response.body).toEqual({
+      errors: [
+        {
+          code: 'BAD_REQUEST',
+          message: 'Unable to register user',
+          reason: 'Email already in use',
+        },
+      ],
+    })
   })
 })

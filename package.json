@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "nodemon -r dotenv/config ./src/server.ts",
-    "test": "jest",
+    "test": "jest --detectOpenHandles --forceExit",
     "prepare": "husky install"
   },
   "lint-staged": {
