@@ -5,5 +5,6 @@ declare namespace NodeJS {
     DATABASE_URI: string
     HASH_SECRET: string
     COOKIES_DOMAIN: string
+    CORS_ORIGIN: string
   }
 }

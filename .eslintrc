@@ -17,6 +17,7 @@
     "no-empty-function": "error",
     "no-return-await": "error",
     "no-shadow": "error",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "no-useless-return": "error",
     "no-var": "error",
     "prefer-template": "warn"
