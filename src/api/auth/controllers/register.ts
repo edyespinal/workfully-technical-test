@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import {
   encryptPassword,
   generateSalt,
@@ -6,8 +6,13 @@ import {
 } from '../../../utils/authentication'
 import { getUserByEmailService } from '../../users/model/services'
 import { User, UserModel } from '../../users/model'
+import { CustomError } from '../../../middlewares/errorHandling/customError'
 
-export async function register(req: Request, res: Response) {
+export async function register(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const {
       username,
@@ -18,13 +23,23 @@ export async function register(req: Request, res: Response) {
     } = req.body as Record<string, string>
 
     if (!username || !email || !password) {
-      return res.status(400).json({ message: 'Missing fields' })
+      throw new CustomError({
+        message: 'Unable to register user',
+        status: 400,
+        code: 'BAD_REQUEST',
+        reason: 'Missing required fields',
+      })
     }
 
     const existingUser = await getUserByEmailService(email)
 
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' })
+      throw new CustomError({
+        message: 'Unable to register user',
+        status: 400,
+        code: 'BAD_REQUEST',
+        reason: 'Email already in use',
+      })
     }
 
     const salt = generateSalt()
@@ -41,25 +56,47 @@ export async function register(req: Request, res: Response) {
     }).save()) as User
 
     if (!user || !user.authentication) {
-      return res.status(500).json({ message: 'Could not create user' })
+      throw new CustomError({
+        message: 'Unable to register user',
+        status: 500,
+        code: 'INTERNAL_SERVER_ERROR',
+        reason: 'Unable to save user',
+      })
     }
 
-    user.authentication.accessToken = generateSessionToken({
+    const accessToken = generateSessionToken({
       id: user._id.toString(),
       username: user.username,
       email: user.email,
     })
+
+    user.authentication.accessToken = accessToken
 
     await user.save()
 
     res.cookie('accessToken', user.authentication.accessToken, {
       domain: process.env.COOKIES_DOMAIN,
       path: '/',
+      sameSite: 'none',
       httpOnly: true,
+      secure: true,
     })
 
-    return res.status(201).json({ username, email, name, lastName }).end()
+    return res
+      .status(201)
+      .json({
+        username,
+        email,
+        name,
+        lastName,
+        accessToken,
+        tokenType: 'Bearer',
+      })
+      .end()
   } catch (error) {
-    res.sendStatus(500)
+    // eslint-disable-next-line no-console
+    console.log(error)
+
+    next(error)
   }
 }

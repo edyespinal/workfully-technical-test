@@ -1,22 +1,33 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { getUserByIdService } from '../model/services'
+import { CustomError } from '../../../middlewares/errorHandling/customError'
 
-export async function getUser(req: Request, res: Response) {
+export async function getUser(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params
 
     if (!id) {
-      return res.status(400).json({ message: 'Missing id' })
+      throw new CustomError({
+        message: 'Unable to get user',
+        status: 400,
+        code: 'BAD_REQUEST',
+        reason: 'Missing required fields',
+      })
     }
 
     const user = await getUserByIdService(id)
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' })
+      throw new CustomError({
+        message: 'Unable to get user',
+        status: 404,
+        code: 'NOT_FOUND',
+        reason: 'User not found',
+      })
     }
 
     res.status(200).send(user).end()
   } catch (error) {
-    res.sendStatus(500)
+    next(error)
   }
 }

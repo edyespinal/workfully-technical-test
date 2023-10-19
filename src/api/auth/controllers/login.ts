@@ -1,35 +1,53 @@
-import { Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { getUserByEmailService } from '../../users/model/services'
 import {
   encryptPassword,
   generateSessionToken,
 } from '../../../utils/authentication'
+import { CustomError } from '../../../middlewares/errorHandling/customError'
 
-export async function login(req: Request, res: Response) {
+export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body as Record<string, string>
 
     if (!email || !password) {
-      return res.status(400).json({ message: 'Missing fields' })
+      throw new CustomError({
+        message: 'Unable to login',
+        status: 400,
+        code: 'BAD_REQUEST',
+        reason: 'Missing credentials',
+      })
     }
 
     const user = await getUserByEmailService(email)
 
     if (!user || !user.authentication) {
-      return res.status(404).json({ message: 'Invalid credentials' })
+      throw new CustomError({
+        message: 'Unable to login',
+        status: 401,
+        code: 'AUTHENTICATION_ERROR',
+        reason: 'Invalid credentials',
+      })
     }
 
     const hash = encryptPassword(password, user.authentication.salt)
 
     if (hash !== user.authentication.password) {
-      return res.status(401).json({ message: 'Invalid credentials' })
+      throw new CustomError({
+        message: 'Unable to login',
+        status: 401,
+        code: 'AUTHENTICATION_ERROR',
+        reason: 'Invalid credentials',
+      })
     }
 
-    user.authentication.accessToken = generateSessionToken({
+    const accessToken = generateSessionToken({
       id: user._id.toString(),
       username: user.username,
       email: user.email,
     })
+
+    user.authentication.accessToken = accessToken
 
     await user.save()
 
@@ -37,16 +55,21 @@ export async function login(req: Request, res: Response) {
       domain: process.env.COOKIES_DOMAIN,
       path: '/',
       httpOnly: true,
+      sameSite: 'none',
+      secure: true,
     })
 
     return res
       .status(200)
       .json({
-        AccessToken: user.authentication.accessToken,
+        id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        accessToken,
         tokenType: 'Bearer',
       })
       .end()
   } catch (error) {
-    return res.sendStatus(500)
+    next(error)
   }
 }
