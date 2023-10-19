@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "hireEdy:backend": "cd backend && yarn && mv .env.example .env && yarn dev",
+    "hireEdy:frontend": "cd frontend && yarn && mv .env.example .env && yarn dev",
+    "hireEdy": "npm install && concurrently  npm:hireEdy:*"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
