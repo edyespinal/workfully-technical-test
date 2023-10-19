@@ -4,6 +4,8 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import { apiRouter } from './api'
 import './services/db'
+import { methodNotAllowed } from './middlewares/methodNotAllowed'
+import { errorHandler } from './middlewares/errorHandling/errorHandler'
 
 const app: Application = express()
 
@@ -21,5 +23,7 @@ app.get('/', (_req, res) => {
 })
 
 app.use('/api', apiRouter)
+app.use('*', methodNotAllowed)
+app.use(errorHandler)
 
 export default app
